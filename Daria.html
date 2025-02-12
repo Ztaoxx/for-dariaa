@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exploding Hearts for Valentine's Day</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background-color: #ffebf3;
+      overflow: hidden;
+    }
+
+    .message {
+      position: absolute;
+      top: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #ff4d6d;
+      animation: wave 2s infinite ease-in-out;
+    }
+
+    @keyframes wave {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .heart-container {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      cursor: pointer;
+    }
+
+    .heart {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: #ff4d6d;
+      transform: rotate(-45deg);
+      opacity: 0;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: #ff4d6d;
+      border-radius: 50%;
+    }
+
+    .heart::before {
+      top: -10px;
+      left: 0;
+    }
+
+    .heart::after {
+      top: 0;
+      left: 10px;
+    }
+
+    @keyframes explode {
+      0% {
+        transform: scale(1) translate(0, 0);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.5) translate(var(--x), var(--y));
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="message">Daria Proszę nacisnąć ekran</div>
+  <script>
+    function createExplosion(x, y) {
+      const container = document.createElement('div');
+      container.classList.add('heart-container');
+      container.style.left = `${x - 50}px`;
+      container.style.top = `${y - 50}px`;
+      document.body.appendChild(container);
+      
+      for (let i = 0; i < 5; i++) {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = Math.random() * 100 + 50;
+        heart.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
+        heart.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
+        heart.style.animation = `explode 1s ease-out forwards ${i * 0.1}s`;
+        container.appendChild(heart);
+        
+        setTimeout(() => heart.style.opacity = '1', 10);
+      }
+      
+      setTimeout(() => container.remove(), 1500);
+    }
+
+    document.body.addEventListener('click', (e) => {
+      createExplosion(e.clientX, e.clientY);
+    });
+  </script>
+</body>
+</html>
