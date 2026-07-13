@@ -1,117 +1,298 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exploding Hearts for Valentine's Day</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      background-color: #ffebf3;
-      overflow: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placeholder - Animacja Książki</title>
+    <style>
+        /* Reset podstawowy */
+        * { box-sizing: border-box; }
+        
+        body {
+            /* Tło z rzadkimi serduszkami (zachowane bez zmian) */
+            background-color: #F8F5EE; 
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Cg fill='%23EC3F39'%3E%3Cpath d='M50 50 L 60 60 L 70 50 A 5 5 0 0 0 60 50 A 5 5 0 0 0 50 50 Z'/%3E%3Cpath d='M250 100 L 260 110 L 270 100 A 5 5 0 0 0 260 100 A 5 5 0 0 0 250 100 Z'/%3E%3Cpath d='M100 300 L 110 310 L 120 300 A 5 5 0 0 0 110 300 A 5 5 0 0 0 100 300 Z'/%3E%3Cpath d='M350 250 L 360 260 L 370 250 A 5 5 0 0 0 360 250 A 5 5 0 0 0 350 250 Z'/%3E%3Cpath d='M180 200 L 190 210 L 200 200 A 5 5 0 0 0 190 200 A 5 5 0 0 0 180 200 Z'/%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 400px;
+            
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden; /* Zapobiega pojawieniu się paska przewijania podczas animacji */
+        }
 
-    .message {
-      position: absolute;
-      top: 20px;
-      font-size: 24px;
-      font-weight: bold;
-      color: #ff4d6d;
-      animation: wave 2s infinite ease-in-out;
-    }
+	@media (max-width: 400px) {
+    	.book {
+        	/* Skalujemy książkę do około 80% rozmiaru, jeśli ekran jest wąski */
+        	transform: scale(0.8);
+    	}
+    
+    	/* Musimy też poprawić przesunięcie otwarcia dla mniejszej skali */
+    	.book.is-open {
+        	transform: scale(0.8) translateX(200px);
+    	}
+	}
 
-    @keyframes wave {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-10px);
-      }
-    }
+        /* Scena 3D definiująca perspektywę */
+        .scene {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            perspective: 1500px; /* Głębia 3D */
+        }
 
-    .heart-container {
-      position: absolute;
-      width: 100px;
-      height: 100px;
-      cursor: pointer;
-    }
+        /* Główny kontener książki - węższy (portretowy) */
+        .book {
+            position: relative;
+            width: 320px;  /* Węższa karta */
+            height: 480px; /* Wysoka */
+            transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transform-style: preserve-3d;
+        }
 
-    .heart {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background-color: #ff4d6d;
-      transform: rotate(-45deg);
-      opacity: 0;
-    }
+        /* Kiedy książka się otwiera, przesuwa się w prawo, aby zrównoważyć otwartą okładkę */
+        .book.is-open {
+            transform: translateX(160px); /* Przesunięcie o połowę szerokości */
+        }
 
-    .heart::before,
-    .heart::after {
-      content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background-color: #ff4d6d;
-      border-radius: 50%;
-    }
+        /* Wspólne style dla stron */
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            background-color: #FCFAF5;
+        }
 
-    .heart::before {
-      top: -10px;
-      left: 0;
-    }
+        /* Wnętrze książki (prawa strona, ukryta pod okładką na początku) */
+        .inside-page {
+            border-radius: 0 12px 12px 0; /* Płaski grzbiet z lewej, zaokrąglone rogi z prawej */
+            box-shadow: inset 8px 0 20px rgba(0,0,0,0.03), 5px 5px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+	.outside-page {
+            border-radius: 0 12px 12px 0; /* Płaski grzbiet z lewej, zaokrąglone rogi z prawej */
+            box-shadow: inset 8px 0 20px rgba(0,0,0,0.03), -7px -2px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
 
-    .heart::after {
-      top: 0;
-      left: 10px;
-    }
+        .inside-page h2 {
+            color: #F7CAC1;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
 
-    @keyframes explode {
-      0% {
-        transform: scale(1) translate(0, 0);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(1.5) translate(var(--x), var(--y));
-        opacity: 0;
-      }
-    }
-  </style>
+        .inside-page p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+  	 .outside-page h2 {
+            color: #F7CAC1;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .outside-page p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* Okładka książki (obraca się w 3D) */
+        .cover {
+            transform-origin: left center; /* Punkt obrotu to lewa krawędź (grzbiet) */
+            transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transform-style: preserve-3d;
+            z-index: 2;
+        }
+
+        /* Stan otwarty okładki */
+        .book.is-open .cover {
+            transform: rotateY(-180deg);
+        }
+
+        /* Przód i tył okładki */
+        .cover-front, .cover-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; /* Ukrywa tył, gdy element jest obrócony */
+            border-radius: 12px;
+        }
+
+        /* Przód okładki (to co było kartą wcześniej) */
+        .cover-front {
+            background-color: #e3a89c;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between	;
+            align-items: center;
+            padding-top: 60px;
+	    padding-bottom: 80px;
+	    padding-left: 30px;
+	    padding-right: 30px;
+            gap: 30px;
+	    text-align: center;
+        }
+
+        .cover-front h1 {
+            color: #555;
+            font-size: 24px;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        /* Tył okładki (pojawia się po lewej stronie po otwarciu) */
+        .cover-back {
+            background-color: #F4F1E9; /* Nieco ciemniejszy odcień na lewą stronę */
+            transform: rotateY(180deg); /* Domyślnie obrócone */
+            border-radius: 12px 0 0 12px; /* Zaokrąglenie odwrócone */
+            box-shadow: inset -5px 0 15px rgba(0,0,0,0.04); /* Cień przy grzbiecie */
+        }
+
+        /* Przyciski */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            width: 100%;
+        }
+
+
+        button {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 45%;
+        }
+
+        .btn-tak {
+            background-color: #F7CAC9; 
+            color: black;
+        }
+
+        .btn-tak:hover { background-color: #6a926a; transform: translateY(-2px); }
+
+        .btn-nie {
+            background-color: #E2DCD3; 
+            color: #555;
+        }
+
+        .btn-nie:hover { background-color: #d1cbc1; transform: translateY(-2px); }
+
+    </style>
 </head>
 <body>
-  <div class="message">Daria Proszę nacisnąć ekran</div>
-  <script>
-    function createExplosion(x, y) {
-      const container = document.createElement('div');
-      container.classList.add('heart-container');
-      container.style.left = `${x - 50}px`;
-      container.style.top = `${y - 50}px`;
-      document.body.appendChild(container);
-      
-      for (let i = 0; i < 5; i++) {
-        const heart = document.createElement('div');
-        heart.classList.add('heart');
-        const angle = Math.random() * 2 * Math.PI;
-        const distance = Math.random() * 100 + 50;
-        heart.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
-        heart.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
-        heart.style.animation = `explode 1s ease-out forwards ${i * 0.1}s`;
-        container.appendChild(heart);
-        
-        setTimeout(() => heart.style.opacity = '1', 10);
-      }
-      
-      setTimeout(() => container.remove(), 1500);
-    }
 
-    document.body.addEventListener('click', (e) => {
-      createExplosion(e.clientX, e.clientY);
-    });
-  </script>
+    <div class="scene">
+        <div class="book" id="myBook">
+            
+            <div class="page inside-page">
+                <h2>Love Letter</h2>
+                <p>Dla psa czy kota masz serce otwarte,
+Wspólne spacery przez pola złociste,
+Przy Tobie dni są zawsze tak warte,
+Bo uczucie nasze jest proste i czyste.
+
+Dario, w tej wsi, gdzie cisza nas koi,
+W Twojej miłości do istot najmniejszych,
+Moje serce przy Tobie spokojnie stoi,
+Wśród wszystkich pragnień  Ty jesteś najpiękniejsza.</p>
+            </div>
+
+            <div class="page cover">
+                
+                <div class="cover-front">
+                    <h1>Czy zechcesz otworzyć mnie i przeczytać zawartość?</h1>
+                    <div class="button-group">
+                        <button class="btn-tak" id="btnTak">Tak</button>
+                        <button class="btn-nie" id="btnNie">Nie</button>
+                    </div>
+                </div>
+
+                <div class="cover-back"><div class="page outside-page">
+                <h2>Love Letter</h2>
+                <p>Daria, w Twoich oczach świat się przegląda,
+Czysty jak poranek, co nad łąką wstaje,
+Gdy w stronę zwierząt z troską wyglądasz,
+Wtedy miłością cały świat się staje.
+
+Kochasz ten spokój, wiejskie aleje,
+Gdzie czas zwalnia kroku w cieniu starej brzozy,
+Twoja dobroć tam jak kwiaty trwaleje,
+Wśród pszczół brzęczenia i porannej rosy.</p>
+            </div></div>
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const book = document.getElementById('myBook');
+            const btnTak = document.getElementById('btnTak');
+            const btnNie = document.getElementById('btnNie');
+
+            // Logika po kliknięciu TAK -> otwarcie książki
+            btnTak.addEventListener('click', () => {
+                book.classList.add('is-open');
+            });
+
+            // Logika po kliknięciu NIE (na ten moment np. wstrząśnięcie okładką lub zamknięcie)
+            btnNie.addEventListener('click', () => {
+                // Jeśli chcesz zamykać książkę po kliknięciu Nie:
+                book.classList.remove('is-open');
+            });
+        });
+
+	
+        let clickCount = 0;
+        const btnNie = document.getElementById('btnNie');
+	const myBook = document.getElementById('myBook');
+	const btnTak = document.getElementById('btnTak');
+        // Ustawienie relatywnego pozycjonowania dla przycisku, aby "ucieczka" działała poprawnie
+        btnNie.style.position = 'relative';
+        btnNie.style.transition = 'all 0.3s ease';
+
+        btnNie.addEventListener('click', () => {
+            clickCount++;
+
+            if (clickCount < 3) {
+                // Ucieczka przycisku w obrębie rodzica (cover-front)
+                // Używamy position absolute wewnątrz relatywnego kontenera
+		btnTak.style.display = 'none';
+                btnNie.style.position = 'absolute';
+                btnNie.style.left = (Math.random() * 60 + 10) + '%';
+                btnNie.style.top = (Math.random() * 60 + 10) + '%';
+            } else {
+                // Trzecie kliknięcie (lub kolejne) - mrok
+                document.body.style.backgroundColor = '#1a1a1a';
+                document.body.style.color = '#ff4d4d';
+		document.body.style.backgroundImage = "url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27200%27 height=%27200%27 viewBox=%270 0 200 200%27%3E%3Cg fill=%27none%27 stroke=%27%23555%27 stroke-width=%2712%27 stroke-linecap=%27round%27%3E%3Ccircle cx=%2770%27 cy=%2780%27 r=%2715%27/%3E%3Ccircle cx=%27130%27 cy=%2780%27 r=%2715%27/%3E%3Cpath d=%27M80 130 Q 100 110 120 130%27/%3E%3C/g%3E%3C/svg%3E')";
+		document.body.style.backgroundSize = "160px";
+		document.body.style.backgroundPosition = "center";
+                
+                // Ukrycie przycisku po "przegranej"
+                btnNie.style.display = 'none';
+		myBook.style.display = 'none';
+
+            }
+        });
+    </script>
 </body>
 </html>
